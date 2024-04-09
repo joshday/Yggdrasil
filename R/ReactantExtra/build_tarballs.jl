@@ -9,7 +9,7 @@ repo = "https://github.com/EnzymeAD/Reactant.jl.git"
 version = v"0.0.1"
 
 sources = [
-   GitSource(repo, "a8bd6c1d15875d78d3f973bbbd873a69a4b38b46"),
+   GitSource(repo, "ed45ce0189f30ceb7896ddd34962f4a4ef2d6b4a"),
 ]
 
 # Bash recipe for building across all platforms
@@ -50,19 +50,19 @@ else
     mv baz/output/bazel .local/bin/bazel
 fi
 
-mkdir -p .julia
-cd .julia
+#mkdir -p .julia
+#cd .julia
 
-export JULIA_PATH=/usr/local/julia
-export PATH=$JULIA_PATH/bin:$PATH
+#export JULIA_PATH=/usr/local/julia
+#export PATH=$JULIA_PATH/bin:$PATH
 
-	wget -O julia.tar.gz "https://julialang-s3.julialang.org/bin/musl/x64/1.8/julia-1.8.5-musl-x86_64.tar.gz"
+#	wget -O julia.tar.gz "https://julialang-s3.julialang.org/bin/musl/x64/1.8/julia-1.8.5-musl-x86_64.tar.gz"
 	
-	mkdir -p "$JULIA_PATH"; 
-	tar -xzf julia.tar.gz -C "$JULIA_PATH" --strip-components 1; 
-	rm julia.tar.gz; 
+#	mkdir -p "$JULIA_PATH"; 
+#	tar -xzf julia.tar.gz -C "$JULIA_PATH" --strip-components 1; 
+#	rm julia.tar.gz; 
 
-cd ..
+# cd ..
 
 mkdir .bazhome
 export HOME=`pwd`/.bazhome
@@ -79,9 +79,11 @@ BAZEL_BUILD_FLAGS+=(--jobs ${nproc})
 BAZEL_BUILD_FLAGS+=(--verbose_failures)
 BAZEL_BUILD_FLAGS+=(--cxxopt=-std=c++17 --host_cxxopt=-std=c++17)
 BAZEL_BUILD_FLAGS+=(--check_visibility=false)
+BAZEL_BUILD_FLAGS+=(--build_tag_filters=-jlrule)
+BAZEL_BUILD_FLAGS+=(--experimental_cc_shared_library)
 
-julia --project=. -e "using Pkg; Pkg.instantiate(); Pkg.add(url=\"https://github.com/JuliaInterop/Clang.jl\", rev=\"vc/cxx_parse2\")"
-BAZEL_BUILD_FLAGS+=(--action_env=JULIA=`which julia`)
+# julia --project=. -e "using Pkg; Pkg.instantiate(); Pkg.add(url=\"https://github.com/JuliaInterop/Clang.jl\", rev=\"vc/cxx_parse2\")"
+BAZEL_BUILD_FLAGS+=(--action_env=JULIA=julia)
 bazel ${BAZEL_FLAGS[@]} build ${BAZEL_BUILD_FLAGS[@]} ...
 cp bazel-bin/libReactantExtra* ${prefix}
 cp bazel-bin/*.jl ${prefix}
